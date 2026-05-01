@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SANTOS INFORPRINT — Pedido</title>
+  <style>
+    :root{
+      --royal:#4169E1;
+      --ciano:#00FFFF;
+      --preto:#000000;
+      --branco:#ffffff;
+      --max-width:1100px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing: border-box}
+    body{margin:0;background:var(--branco);color:var(--preto);-webkit-font-smoothing:antialiased}
+    header{background:linear-gradient(90deg,var(--royal),#274fcb);color:var(--branco);padding:14px 18px;display:flex;align-items:center;gap:12px}
+    header img.logo{height:60px}
+    header h1{font-size:18px;margin:0}
+    nav{margin-left:auto}
+    nav button{background:transparent;border:2px solid rgba(255,255,255,0.12);color:var(--branco);padding:8px 10px;border-radius:8px;margin-left:10px;cursor:pointer}
+    main{max-width:var(--max-width);margin:28px auto;padding:18px}
+    .grid{display:grid;gap:18px}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+    .card{background:var(--branco);border-radius:10px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.06);border:1px solid rgba(65,105,225,0.12)}
+    .price{font-weight:800;color:var(--royal);margin-top:8px}
+    .btn{background:var(--royal);color:var(--branco);border:0;padding:10px 12px;border-radius:8px;font-weight:700;cursor:pointer}
+    .btn-ciano{background:var(--ciano);color:var(--preto)}
+    .btn-ghost{background:transparent;border:2px solid var(--royal);color:var(--royal);padding:8px 10px;border-radius:8px;cursor:pointer}
+    small.muted{color:#444;display:block;margin-top:6px}
+    footer{padding:18px;text-align:center;color:#666;margin-top:24px}
+    .page{display:none}
+    .page.active{display:block}
+    .cart-list{width:100%;border-collapse:collapse}
+    .cart-list td,.cart-list th{padding:8px;border-bottom:1px solid #eee;text-align:left}
+    input[type=text], textarea, select, input[type=number]{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
+    .row{display:flex;gap:12px}
+    .row> *{flex:1}
+    .small{width:120px}
+    .badge{background:var(--royal);color:var(--branco);padding:6px 10px;border-radius:999px;font-weight:700}
+    .center{display:flex;gap:10px;align-items:center}
+    .muted{color:#555}
+    .item-qty{width:70px;padding:6px;border:1px solid #ddd;border-radius:6px}
+    .remove-btn{background:transparent;border:0;color:#c00;cursor:pointer;font-weight:700}
+    @media(max-width:600px){ header{flex-direction:column;align-items:flex-start} nav{margin-left:0} }
+  </style>
+</head>
+<body>
+  <header>
+    <img class="logo" id="logoImg" src="santos_logo.png" alt="Logo"/>
+    <h1>SANTOS INFORPRINT</h1>
+    <nav>
+      <button onclick="goto('p1')">Pedidos</button>
+      <button onclick="goto('p2')">Carrinho</button>
+      <button onclick="goto('p3')">Enviar</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- PÁGINA 1 -->
+    <section id="p1" class="page active">
+      <h2>Serviços & Valores <span class="badge">Página 1</span></h2>
+      <p class="muted">Escolha os serviços e adicione ao carrinho. Clique em <strong>Analisar Carrinho</strong> quando terminar.</p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Impressões (papel)</h3>
+          <div class="cards" id="impressaoCards"></div>
+        </div>
+
+        <div class="card">
+          <h3>Artes para CD / Capas / Gravação</h3>
+          <p class="muted">Capa padrão branca com nossa logo e marca d'água: <strong>GRÁTIS</strong> (paga-se apenas músicas + gravação).</p>
+
+          <label>Opções de Arte para CD</label>
+          <select id="cdArtOption">
+            <option value="padrao" data-price="0">Capa padrão (GRÁTIS)</option>
+            <option value="propria" data-price="2">Arte própria / exclusiva — R$2,00</option>
+            <option value="4k" data-price="3">Capa 4K (qualidade fotográfica) — R$3,00</option>
+          </select>
+          <small class="muted">Música: R$0,50 por música. Gravação: R$5,00 por CD.</small>
+
+          <div style="margin-top:8px">
+            <label>Número de Músicas</label>
+            <input type="number" id="numMusicas" min="0" value="0" />
+          </div>
+          <div style="margin-top:8px">
+            <label>Quantidade de CDs</label>
+            <input type="number" id="numCds" min="1" value="1" />
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn" id="addCdBtn">Adicionar Arte de CD ao carrinho</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Artes para Adesivos / Topo de Bolo / Objetos</h3>
+          <p class="muted">Arte básica: R$5,00 + impressão R$5,00 por folha. Arte profissional (solvente/UV/DTF): R$10,00 + impressão calculada por dimensão.</p>
+
+          <label>Tipo de Arte</label>
+          <select id="adesivoTipo">
+            <option value="basica" data-price="5">Arte básica — R$5,00</option>
+            <option value="profissional" data-price="10">Arte profissional (solvent/UV/DTF) — R$10,00</option>
+          </select>
+          <label style="margin-top:8px">Quantidade de folhas (se aplicável)</label>
+          <input type="number" id="adesivoQtd" min="0" value="0" />
+          <div style="margin-top:8px"><button class="btn" id="addAdesivoBtn">Adicionar Arte de Adesivo</button></div>
+        </div>
+
+        <div class="card">
+          <h3>Outros Serviços</h3>
+          <ul class="muted">
+            <li>Banner: arte grátis — impressão R$60 (a partir de 40cm)</li>
+            <li>Personalizados (copos, cadernos, lembrancinhas) — valor definido após análise</li>
+          </ul>
+          <div style="margin-top:8px">
+            <button class="btn" id="addBannerBtn">Adicionar Banner (impressão R$60)</button>
+            <button class="btn btn-ciano" id="addPersonalBtn" style="margin-left:8px">Adicionar Personalizado</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Nossos Produtos & Demais Serviços</h3>
+          <label>Escolha</label>
+       <select id="xeroxSelect">
+  <option value="marca6" data-price="1.0">Marca página 6cm — R$1,00 (ver estampas no WhatsApp)</option>
+  <option value="marca11" data-price="1.5">Marca página 11cm — R$1,50 (ver estampas no WhatsApp)</option>
+
+  <option value="album" data-price="10">Álbum de Fotos Básico — R$10,00 (ver estampas no WhatsApp)</option>
+
+  <option value="envg" data-price="1.5">Envelope grande — R$1,50</option>
+  <option value="envp" data-price="0.5">Envelope pequeno — R$0,50</option>
+
+  <option value="foto6" data-price="5">Foto 3x4 (6 unidades) — R$5,00</option>
+  <option value="foto8" data-price="6">Foto 3x4 (8 unidades) — R$6,00</option>
+  <option value="foto10" data-price="7">Foto 3x4 (10 unidades) — R$7,00</option>
+  <option value="foto12" data-price="8">Foto 3x4 (12 unidades) — R$8,00</option>
+
+  <option value="foto1015" data-price="3.5">Foto 10x15 (1 unidade) — R$3,50</option>
+
+  <option value="suspadrao" data-price="7">Retífica SUS padrão — R$7,00</option>
+  <option value="susalta" data-price="10">Retífica SUS alta qualidade — R$10,00</option>
+  <option value="suspers" data-price="13">Retífica SUS personalizada — R$13,00</option>
+
+  <option value="cpfpadrao" data-price="7">2ª via CPF/Título padrão — R$7,00</option>
+  <option value="cpfalta" data-price="10">2ª via CPF/Título alta qualidade — R$10,00</option>
+
+  <option value="govrec" data-price="30">Recuperação conta Gov — R$30,00</option>
+  <option value="govpadrao" data-price="7">Cartão Gov padrão — R$7,00</option>
+  <option value="govalta" data-price="10">Cartão Gov alta qualidade — R$10,00</option>
+</select>
+          <label style="margin-top:8px">Quantidade </label>
+          <input type="number" id="xeroxQtd" min="1" value="1" />
+          <div style="margin-top:8px"><button class="btn" id="addXeroxBtn">Adicionar Item</button></div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px">
+        <button class="btn-ghost" onclick="goto('p2')">Analisar Carrinho</button>
+      </div>
+    </section>
+
+    <!-- PÁGINA 2 -->
+    <section id="p2" class="page">
+      <h2>Analisar Carrinho <span class="badge">Página 2</span></h2>
+      <div class="card">
+        <table class="cart-list" id="cartTable">
+          <thead><tr><th>Item</th><th>Detalhes</th><th>Qtd</th><th>Preço unit.</th><th>Total</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div style="text-align:right;margin-top:8px">
+          <strong>Subtotal: R$ <span id="subtotal">0.00</span></strong>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn-ghost" id="backToP1">Voltar aos pedidos</button>
+          <button class="btn" id="confirmCart">Confirmar pedidos</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PÁGINA 3 -->
+    <section id="p3" class="page">
+      <h2>Enviar Pedido <span class="badge">Página 3</span></h2>
+      <div class="card">
+        <label>Detalhes do pedido / observações / local de entrega / ponto de coleta / lista de músicas</label>
+        <textarea id="observacoes" rows="4" placeholder="Escreva aqui detalhes, lista de hinos (se for CD), descrições da arte, etc..."></textarea>
+        <p class="muted">Envie arquivos (imagens/artes) pelo WhatsApp após abrir a conversa.</p>
+        <div style="margin-top:10px">
+          <label>Seu nome</label>
+          <input type="text" id="clienteNome" placeholder="Nome do cliente" />
+        </div>
+        <div style="margin-top:8px">
+          <label>Telefone (WhatsApp)</label>
+          <input type="text" id="clienteFone" placeholder="(DDD) 9XXXX-XXXX" />
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn-ghost" id="sendBackToCart">Voltar ao carrinho</button>
+          <button class="btn btn-ciano" id="sendOrderBtn">Enviar pedido para o WhatsApp</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Template gerado — substitua logo/telefone conforme necessário.
+  </footer>
+
+<script>
+// --- CONFIG ---
+const WHATSAPP_NUMBER = '5581996168545'; // já configurado para seu número
+
+// util
+const money = v => Number(v).toFixed(2);
+
+// catalog
+const itemsCatalog = {
+  'oficio': {name:'Impressão ofício', price:3.5},
+  'fotografico': {name:'Impressão fotográfica', price:6},
+  'adesiva_imp': {name:'Impressão adesiva', price:6},
+  'xeroxpb': {name:'Xerox P&B', price:0.5},
+  'xeroxcolor': {name:'Xerox colorida', price:1.5}
+};
+
+// cart with persistence
+let cart = JSON.parse(localStorage.getItem('santos_cart_v1')||'[]');
+
+// render impression options
+const impressaoCards = document.getElementById('impressaoCards');
+function renderImpressaoOptions(){
+  const keys = ['oficio','fotografico','adesiva_imp','xeroxpb','xeroxcolor'];
+  impressaoCards.innerHTML = keys.map(k=>{
+    const it = itemsCatalog[k];
+    return `
+      <div class="card">
+        <h4>${it.name}</h4>
+        <p class="price">R$ ${money(it.price)}</p>
+        <div style="margin-top:8px">
+          <label>Qtd</label>
+          <input type="number" min="1" value="1" data-key="${k}" class="qtdInput item-qty" />
+        </div>
+        <div style="margin-top:8px"><button class="btn" data-add="${k}">Adicionar</button></div>
+      </div>
+    `;
+  }).join('');
+}
+
+// add to cart helper
+function addToCart(item){
+  // if same code and same details, merge quantities for services
+  if(item.code && item.type==='service'){
+    const existing = cart.find(c=>c.code===item.code && c.details===item.details);
+    if(existing){
+      existing.qty = Number(existing.qty) + Number(item.qty);
+    } else {
+      cart.push(item);
+    }
+  } else {
+    cart.push(item);
+  }
+  persistCart();
+  alert('Adicionado ao carrinho: '+item.name);
+}
+
+// persist
+function persistCart(){ localStorage.setItem('santos_cart_v1', JSON.stringify(cart)); renderCartTable(); }
+
+// render cart table
+function renderCartTable(){
+  const tbody = document.querySelector('#cartTable tbody');
+  tbody.innerHTML = '';
+  let subtotal = 0;
+  if(cart.length===0){ tbody.innerHTML = '<tr><td colspan="6">Carrinho vazio</td></tr>'; document.getElementById('subtotal').textContent = money(0); return; }
+  cart.forEach((it,idx)=>{
+    const total = Number(it.price)*Number(it.qty);
+    subtotal += total;
+    tbody.insertAdjacentHTML('beforeend', `<tr>
+      <td>${it.name}</td>
+      <td>${it.details||''}</td>
+      <td><input class="item-qty" type="number" min="1" value="${it.qty}" data-idx="${idx}" /></td>
+      <td>R$ ${money(it.price)}</td>
+      <td>R$ ${money(total)}</td>
+      <td><button class="remove-btn" data-rm="${idx}">Remover</button></td>
+    </tr>`);
+  });
+  document.getElementById('subtotal').textContent = money(subtotal);
+}
+
+// events delegation
+document.body.addEventListener('click', e=>{
+  if(e.target.dataset.add){
+    const key = e.target.dataset.add;
+    const input = document.querySelector(`input.qtdInput[data-key="${key}"]`);
+    const qtd = Number(input.value)||1;
+    addToCart({type:'service', code:key, name: itemsCatalog[key].name, qty:qtd, price:itemsCatalog[key].price, details:''});
+  }
+  if(e.target.id==='addXeroxBtn'){
+    const key = document.getElementById('xeroxSelect').value;
+    const price = Number(document.getElementById('xeroxSelect').selectedOptions[0].dataset.price);
+    const qtd = Number(document.getElementById('xeroxQtd').value)||1;
+    addToCart({type:'service', code:key, name: document.getElementById('xeroxSelect').selectedOptions[0].textContent, qty:qtd, price:price, details:''});
+  }
+  if(e.target.id==='addCdBtn'){
+    const opt = document.getElementById('cdArtOption');
+    const artPrice = Number(opt.selectedOptions[0].dataset.price)||0;
+    const numMus = Number(document.getElementById('numMusicas').value)||0;
+    const numCds = Number(document.getElementById('numCds').value)||1;
+    const musicasPreco = 0.5 * numMus;
+    const gravaPreco = 5.0 * numCds;
+    const details = `Músicas: ${numMus} (R$${money(musicasPreco)}) — Gravação: R$${money(gravaPreco)} (por ${numCds} CD(s))`;
+    const totalPricePerUnit = (artPrice) + (musicasPreco/numCds) + 5.0; // approximate per CD price (art split)
+    addToCart({type:'cd', code:'cd_art', name:`Arte+gravação CD (${opt.value})`, qty:numCds, price: totalPricePerUnit, details:details});
+  }
+  if(e.target.id==='addAdesivoBtn'){
+    const tipo = document.getElementById('adesivoTipo');
+    const price = Number(tipo.selectedOptions[0].dataset.price)||0;
+    const qtdFolhas = Number(document.getElementById('adesivoQtd').value)||0;
+    const impressaoValor = 5 * qtdFolhas;
+    const details = `Tipo: ${tipo.value} — Folhas: ${qtdFolhas} — Impressão: R$${money(impressaoValor)}`;
+    addToCart({type:'adesivo', code:'adesivo_art', name:`Arte adesivo (${tipo.value})`, qty:1, price: price + impressaoValor, details});
+  }
+  if(e.target.id==='addBannerBtn'){
+    addToCart({type:'banner', code:'banner', name:'Banner (impressão)', qty:1, price:60, details:'Arte grátis; impressão R$60 (a partir de 40cm)'});
+  }
+  if(e.target.id==='addPersonalBtn'){
+    addToCart({type:'personal', code:'personal', name:'Personalizado (valor indefinido)', qty:1, price:0, details:'Valor será definido após análise. Descreva na etapa final.'});
+  }
+  if(e.target.dataset.rm){
+    const idx = Number(e.target.dataset.rm);
+    cart.splice(idx,1);
+    persistCart();
+  }
+});
+
+// update qty inputs in cart
+document.querySelector('#cartTable').addEventListener('input', e=>{
+  if(e.target.matches('input.item-qty') && e.target.dataset.idx){
+    const idx = Number(e.target.dataset.idx);
+    const val = Number(e.target.value)||1;
+    cart[idx].qty = val;
+    persistCart();
+  }
+});
+
+// navigation
+function goto(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+  renderCartTable();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.getElementById('backToP1').addEventListener('click', ()=> goto('p1'));
+document.getElementById('confirmCart').addEventListener('click', ()=> goto('p3'));
+document.getElementById('sendBackToCart').addEventListener('click', ()=> goto('p2'));
+
+// send order to WhatsApp
+document.getElementById('sendOrderBtn').addEventListener('click', ()=>{
+  const nome = document.getElementById('clienteNome').value.trim();
+  const fone = document.getElementById('clienteFone').value.trim();
+  const obs = document.getElementById('observacoes').value.trim();
+  if(cart.length===0){ alert('Carrinho vazio. Adicione itens antes de enviar.'); goto('p1'); return; }
+  if(!nome||!fone){ if(!nome) alert('Por favor informe seu nome.'); if(!fone) alert('Por favor informe seu telefone/WhatsApp.'); return; }
+
+  let msg = `Pedido pelo site\nNome: ${nome}\nTelefone: ${fone}\n\nItens:\n`;
+  let subtotal=0;
+  cart.forEach((it,idx)=>{
+    const total = Number(it.price)*Number(it.qty);
+    subtotal += total;
+    msg += `${idx+1}) ${it.name} - Qtd: ${it.qty} - R$${money(it.price)} - Total R$${money(total)}\nDetalhes: ${it.details||''}\n\n`;
+  });
+  msg += `Subtotal: R$${money(subtotal)}\n\nObservações: ${obs}\n\nEnvie os arquivos (artes/imagens) diretamente pelo WhatsApp após abrir a conversa.`;
+
+  const encoded = encodeURIComponent(msg);
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`;
+  window.open(url,'_blank');
+  // optionally clear cart after send: cart = []; persistCart();
+});
+
+// init
+renderImpressaoOptions();
+renderCartTable();
+</script>
+
+<footer style="text-align:center; padding:10px; font-size:12px; color:#555;">
+  &copy; 2025 Juan Silva Dos Santos. Todos os direitos reservados. Uso do código sujeito a autorização.
+</footer>
+
+</body>
+</html>
